@@ -76,7 +76,7 @@ async def category_choosing_handler(message: Message, state: FSMContext):
     category = message.text
     count_recipes = (await state.get_data()).get('count_recipes', 1)
 
-    async with aiohttp.ClientSession as session:
+    async with aiohttp.ClientSession() as session:
         try:
             async with session.get(f"{THEMEALDB_API}/filter.php?c={category}") as response:
                 response.raise_for_status()
