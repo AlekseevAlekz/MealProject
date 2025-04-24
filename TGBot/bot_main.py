@@ -16,6 +16,7 @@ from TGBot.token_data import BOT_TOKEN
 dp = Dispatcher()
 dp.include_router(router)
 
+
 @dp.message(CommandStart())
 async def cmd_start_handler(message=Message):
     """ Обработчик команды /start"""
@@ -29,13 +30,15 @@ async def cmd_start_handler(message=Message):
         keyboard=kb,
         resize_keyboard=True,
     )
-    await message.answer(f"Привет, {hbold(message.from_user.full_name)}! С чего начнем?",
-                         reply_markup=keyboard)
+    await message.answer(
+        f"Привет, {hbold(message.from_user.full_name)}! С чего начнем?",
+        reply_markup=keyboard
+    )
 
 
 @dp.message(F.text.lower() == "команды")
 async def commands(message: Message):
-    response =as_list(
+    response = as_list(
         as_marked_section(
             Bold("Команды"),
             "/category_search_random - для указания количества рецептов",
