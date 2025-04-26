@@ -90,8 +90,6 @@ async def category_choosing_handler(message: Message, state: FSMContext):
                 meal_names = [meal['strMeal'] for meal in meals]
                 meal_ids = [meal['idMeal'] for meal in meals]
 
-                # translated_names = [await asyncio.to_thread(translator.translate(name, dest='ru').text) for name in meal_names]
-                # translated_texts = [item.text for item in translated_names]
                 translated_texts = await asyncio.gather(
                     *[asyncio.to_thread(lambda text: translator.translate(text, dest='ru').text, name) for name in
                       meal_names])
@@ -116,8 +114,6 @@ async def category_choosing_handler(message: Message, state: FSMContext):
 
 @router.message(RecipeStates.waiting_for_recipes)
 async def recipe_choosing_handler(message: Message, state: FSMContext):
-    # selected_recipe = message.text
-    # logging.info(f"selected_recipe: {selected_recipe}")
     if message.text != "Покажи рецепты.":
         await message.answer("Сначала выберите один из предложенных рецептов.")
         return
@@ -131,17 +127,6 @@ async def recipe_choosing_handler(message: Message, state: FSMContext):
         await message.answer("Не удалось получить список рецептов")
         return
 
-    # selected_id = None
-    # for meal in meals:
-    #     translated_name = translator.translate(meal['strMeal'], dest='ru').text
-    #     if translated_name == selected_recipe:
-    #         selected_id = meal['idMeal']
-    #         break
-
-    # if selected_id is None:
-    #     await message.answer("Не удалось найти выбранный рецепт.")
-    #     return
-
     keyboard = ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     for idx, translated_name in enumerate(translated_names):
         keyboard.insert(KeyboardButton(text=f"{idx+1}, {translated_name}"))
@@ -150,42 +135,6 @@ async def recipe_choosing_handler(message: Message, state: FSMContext):
         await message.answer("Выберите рецепт для просмотра подробностей.", reply_markup=keyboard)
         await state.set_state(RecipeStates.showing_recipe_details)
 
-    # async with aiohttp.ClientSession() as session:
-    #     try:
-    #         async with session.get(f"{THEMEALDB_API}/lookup.php?i={selected_id}") as response:
-    #             data = await response.json()
-    #
-    #             if meals not in data or not data['meals']:
-    #                 await message.answer("Не удалось найти рецепт!")
-    #                 return
-    #
-    #             meal = data['meals'][0]
-    #
-    #             translated_name = translator.translate(meal['strMeal'], dest='ru').text
-    #             translated_instructions = translator.translate(meal['strInstructions'], dest='ru').text
-    #
-    #             ingredients = []
-    #             for i in range(1, 21):
-    #                 ingredient = meal.get(f"strIngredient{i}")
-    #                 measure = meal.get(f"strMeasure{i}")
-    #                 if ingredient and ingredient.strip():
-    #                     translated_ingredient = translator.translate(ingredient, dest='ru').text
-    #                     translated_measure = translator.translate(measure, dest='ru').text
-    #                     ingredients.append(f"- {await translated_measure} {await translated_ingredient}")
-    #             ingredients_text = "\n".join(ingredients)
-    #
-    #             #instructions_ru = await translate_text(meal['strInstructions'])
-    #
-    #             message_text = (
-    #                 f"<b>{await translated_name}</b>\n"
-    #                 f"<b>Рецепт:</b>\n{translated_instructions}\n"
-    #                 f"<b>Ингредиенты:</b>\n{ingredients_text}"
-    #             )
-    #             await message.answer(message_text)
-    #
-    #     except Exception as e:
-    #         logging.error(f"Error while fetching details for recipe {selected_recipe}: {e}")
-    #         await message.answer("Произошла ошибка")
 
 
 
